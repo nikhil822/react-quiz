@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Home.css";
 import { Button, TextField } from "@mui/material";
-import { db } from "../firebase-config";
-import { collection, addDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 var idx = 1;
@@ -10,8 +8,8 @@ const Home = () => {
   const navigate = useNavigate()
 
   const [quizName, setQuizName] = React.useState("");
-  const [quizDescription, setQuizDescription] = React.useState("");
-  const [quizPoints, setQuizPoints] = React.useState("");
+  const [quizDesc, setQuizDesc] = React.useState("");
+  const [points, setPoints] = React.useState("");
   const [questions, setQuestions] = React.useState([
     {
       question: "",
@@ -34,17 +32,27 @@ const Home = () => {
       index: 1
     }
   ]);
+  
+  const createUser = async (e) => {
+    e.preventDefault()
 
-  const userCollectionRef = collection(db, "quiz");
+    const user = {quizName, quizDesc, points, addQuestions}
+    console.log(user)
 
-  const createUser = async () => {
-    await addDoc(userCollectionRef, {
-      Name: quizName,
-      Description: quizDescription,
-      Points: quizPoints,
-      Question: addQuestions
-    });
-    navigate('/')
+    const res = await fetch('http://localhost:5000/api/new', {
+      method: "POST",
+      body: JSON.stringify(user),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    const json = await res.json()
+    if(!res.ok){
+      window.alert("Please fill all the fields")
+    }else{
+      window.alert("Quiz Created Successfully")
+      navigate('/')
+    }
   }
   
 
@@ -108,15 +116,15 @@ const Home = () => {
             label="Description"
             multiline
             maxRows={4}
-            value={quizDescription}
-            onChange={(e) => setQuizDescription(e.target.value)}
+            value={quizDesc}
+            onChange={(e) => setQuizDesc(e.target.value)}
           />
           <TextField
             style={{ marginBottom: 25 }}
             label="Points for each question"
             variant="outlined"
-            value={quizPoints}
-            onChange={(e) => setQuizPoints(e.target.value)}
+            value={points}
+            onChange={(e) => setPoints(e.target.value)}
           />
           <Button
             variant="contained"
