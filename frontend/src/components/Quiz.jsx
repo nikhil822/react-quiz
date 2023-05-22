@@ -1,6 +1,14 @@
+import { useEffect } from 'react'
 import Questions from './Questions'
+import {useSelector} from 'react-redux'
 
 const Quiz = () => {
+
+    const {questions} = useSelector(state => state)
+
+    useEffect(() => {
+        console.log(questions.queue)
+    })
 
     const onNext = () => {
         console.log("next")
